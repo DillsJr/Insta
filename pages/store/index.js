@@ -1,11 +1,11 @@
 import { View, Text } from 'react-native';
 
-function HomeScreen() {
+function StoreScreen() {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text> Home Screen </Text>
+        <Text>Store Screen</Text>
       </View>
     );
   }
 
-export default HomeScreen;
+export default StoreScreen;

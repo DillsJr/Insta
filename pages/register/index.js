@@ -1,10 +1,8 @@
-import {
-    AppLogo,
-    IconFacebook
-} from '../../assets'
-import {
-  PrimaryButton
-} from '../../components'
+import { AppLogo, IconFacebook } from '../../assets'
+import { PrimaryButton, LoadingUi } from '../../components'
+import { useSelector, useDispatch } from 'react-redux'
+import * as React from 'react';
+import CApi from '../../lib/CApi';
 import { 
     View, 
     Text, 
@@ -14,17 +12,43 @@ import {
     SafeAreaView,
     ScrollView
 } from 'react-native';
+import { 
+  setRegisterEmail, 
+  setRegisterFullName,
+  setRegisterUsername,
+  setRegisterPassword
+} from '../../store/reducer/registerSlice'
 
 function RegisterScreen({navigation}) {
+  const register = useSelector((state) => state.register)
+  const [isLoading, setLoading]= React.useState(false)
+  const dispatch = useDispatch()
 
   const onhandleLoginButton = ()=>{
     navigation.navigate('Login')
   }
 
-  const submitRegister = () =>{
-    // call api
-    // tampilkan pesan
-    alert('Data berhasil disimpan')
+  const submitRegister = async () => {
+    try{
+      setLoading(true)
+      const body= {
+        "dataSource": "Cluster0",
+        "database": "izonovel",
+        "collection": "anggota",
+        "document": register
+      }
+      
+      const respose = await CApi.post('/action/insertOne',body)
+      setLoading(false)
+      if(respose) {
+        alert('Data berhasil disimpan')
+      }
+    }catch(error){
+      setLoading(false)
+      console.error('error',error)
+      alert(error.message)
+    }
+    
   }
 
   return (
@@ -32,31 +56,39 @@ function RegisterScreen({navigation}) {
       <ScrollView>
         <View style={style.container}>
           <Image source={AppLogo} style={style.logoTop} />
-          <Text style={style.bodyText}>Sign up to see photos and videos from yor friends.</Text>
+          <Text style={style.bodyText}> Sign up to see photos and videos from yor friends. </Text>
           <PrimaryButton 
             icon={IconFacebook}
             style={style.loginFacebook}
             title="Log in with Facebook"
             />
 
-            <Text style={[style.bodyText, {marginTop:20}]}>OR</Text>
-            
+            <Text style={[style.bodyText, {marginTop:20}]}> OR </Text>
+
             <TextInput
+              value={register.email}
+              onChangeText={(val)=>dispatch(setRegisterEmail(val))}
               style={[style.input, {marginTop:20}]}
               placeholder="Mobile Number or Email"
             />
 
             <TextInput
+              value={register.fullName}
+              onChangeText={(val)=>dispatch(setRegisterFullName(val))}
               style={[style.input, {marginTop:10}]}
               placeholder="Full Name"
             />
 
             <TextInput
+              value={register.userName}
+              onChangeText={(val)=>dispatch(setRegisterUsername(val))}
               style={[style.input, {marginTop:10}]}
               placeholder="User Name"
             />
 
             <TextInput
+              value={register.password}
+              onChangeText={(val)=>dispatch(setRegisterPassword(val))}
               style={[style.input, {marginTop:10}]}
               placeholder="Password"
             />
@@ -87,6 +119,7 @@ function RegisterScreen({navigation}) {
             />
         </View>
       </ScrollView>
+      <LoadingUi loading={isLoading}/>
     </SafeAreaView>
   );
 }
